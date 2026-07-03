@@ -1,5 +1,5 @@
 import Foundation
-import  Combine
+import Combine
 
 @MainActor
 final class ExpenseStore: ObservableObject {
@@ -24,7 +24,11 @@ final class ExpenseStore: ObservableObject {
         }
 
         let roundedAmount = amount.roundedMoneyScale()
-        let entry = ExpenseEntry(amount: roundedAmount, createdAt: createdAt)
+        let entry = ExpenseEntry(
+            date: createdAt,
+            amount: roundedAmount,
+            createdAt: createdAt
+        )
         entries.insert(entry, at: 0)
     }
 
@@ -36,6 +40,7 @@ final class ExpenseStore: ObservableObject {
 
     func deleteAll() {
         entries.removeAll()
+        UserDefaults.standard.removeObject(forKey: storageKey)
     }
 
     var todayTotal: Decimal {
@@ -77,13 +82,19 @@ final class ExpenseStore: ObservableObject {
     }
 
     var recentEntries: [ExpenseEntry] {
-        Array(entries.prefix(30))
+        Array(
+            entries
+                .sorted { lhs, rhs in
+                    lhs.createdAt > rhs.createdAt
+                }
+                .prefix(30)
+        )
     }
 
     private func total(in interval: DateInterval) -> Decimal {
         entries
             .filter { entry in
-                interval.contains(entry.createdAt)
+                interval.contains(entry.date)
             }
             .reduce(Decimal(0)) { partialResult, entry in
                 partialResult + entry.amount
