@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		46D21D742FF71C2F00D0B7B9 /* Hualeme.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hualeme.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		46D21D742FF71C2F00D0B7B9 /* Hualeme.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Hualeme.app; path = "/Users/marcosshuaige/Documents/玩玩/Hualeme/build/Debug-iphoneos/Hualeme.app"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -33,16 +33,7 @@
 			isa = PBXGroup;
 			children = (
 				46D21D762FF71C2F00D0B7B9 /* Hualeme */,
-				46D21D752FF71C2F00D0B7B9 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		46D21D752FF71C2F00D0B7B9 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				46D21D742FF71C2F00D0B7B9 /* Hualeme.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -95,7 +86,7 @@
 			mainGroup = 46D21D6B2FF71C2F00D0B7B9;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 46D21D752FF71C2F00D0B7B9 /* Products */;
+			productRefGroup = 46D21D6B2FF71C2F00D0B7B9;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
