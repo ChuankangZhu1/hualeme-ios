@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject private var store: ExpenseStore
     @State private var isShowingCustomAmount = false
+    @State private var lastRecordedEntryID: UUID?
 
     private let quickAmounts: [Decimal] = [
         Decimal(0),
@@ -18,12 +19,23 @@ struct HomeView: View {
         GridItem(.flexible(), spacing: 12)
     ]
 
+    private var lastRecordedEntry: ExpenseEntry? {
+        guard let lastRecordedEntryID else {
+            return nil
+        }
+
+        return store.entries.first { entry in
+            entry.id == lastRecordedEntryID
+        }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     headerSection
                     quickAmountSection
+                    feedbackSection
                     summarySection
                     recent7DaysSection
                     recentRecordsSection
@@ -33,7 +45,7 @@ struct HomeView: View {
             .navigationTitle("花了么")
             .sheet(isPresented: $isShowingCustomAmount) {
                 CustomAmountView { amount in
-                    store.add(amount: amount)
+                    record(amount: amount)
                     isShowingCustomAmount = false
                 }
             }
@@ -41,22 +53,42 @@ struct HomeView: View {
     }
 
     private var headerSection: some View {
-        VStack(spacing: 8) {
-            Text("今天花了")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+        let status = store.walletStatus
 
-            Text(MoneyFormatting.string(from: store.todayTotal))
-                .font(.system(size: 44, weight: .bold, design: .rounded))
-                .minimumScaleFactor(0.7)
-                .lineLimit(1)
+        return VStack(spacing: 14) {
+            VStack(spacing: 6) {
+                Text("今天花了么？")
+                    .font(.title2.weight(.bold))
 
-            Text("只记大概金额，不做复杂分类。")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                Text("给钱包测个体温。")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(spacing: 8) {
+                Text("钱包 HP：\(status.hp) / 100")
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+
+                Text(status.title)
+                    .font(.headline)
+
+                Text(status.message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            Text(store.checkInStatusText)
+                .font(.subheadline.weight(.semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(.regularMaterial)
+                .clipShape(Capsule())
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 18)
+        .padding(.vertical, 22)
         .padding(.horizontal, 16)
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -70,7 +102,7 @@ struct HomeView: View {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(quickAmounts, id: \.self) { amount in
                     Button {
-                        store.add(amount: amount)
+                        record(amount: amount)
                     } label: {
                         Text(MoneyFormatting.string(from: amount))
                             .font(.headline)
@@ -93,9 +125,20 @@ struct HomeView: View {
         }
     }
 
+    @ViewBuilder
+    private var feedbackSection: some View {
+        if let lastRecordedEntry {
+            WalletFeedbackCard(
+                recordedAmount: lastRecordedEntry.amount,
+                todayTotal: store.todayTotal,
+                walletStatus: store.walletStatus
+            )
+        }
+    }
+
     private var summarySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("统计")
+            Text("今日 / 本周 / 本月")
                 .font(.headline)
 
             HStack(spacing: 12) {
@@ -163,6 +206,42 @@ struct HomeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
         }
+    }
+
+    private func record(amount: Decimal) {
+        if let entry = store.add(amount: amount) {
+            lastRecordedEntryID = entry.id
+        }
+    }
+}
+
+private struct WalletFeedbackCard: View {
+    let recordedAmount: Decimal
+    let todayTotal: Decimal
+    let walletStatus: WalletStatus
+
+    private var title: String {
+        recordedAmount == Decimal(0) ? "今日打卡完成" : "记录成功"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.headline)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("你刚刚记录了：\(MoneyFormatting.string(from: recordedAmount))")
+                Text("今日累计：\(MoneyFormatting.string(from: todayTotal))")
+                Text("钱包 HP：\(walletStatus.hp) / 100")
+                Text("\(walletStatus.title)：\(walletStatus.message)")
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(.thinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }
 
