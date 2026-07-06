@@ -189,27 +189,27 @@ struct WalletStatus: Equatable {
             hp = 100
             title = "满血钱包"
             message = "今天没花钱，钱包正在晒太阳。"
-        } else if amount < Decimal(5) {
+        } else if amount < Decimal(10) {
             hp = 95
             title = "几乎无伤"
             message = "这点伤害，钱包表示还能跑。"
-        } else if amount < Decimal(10) {
+        } else if amount < Decimal(20) {
             hp = 90
             title = "轻微擦伤"
             message = "钱包擦破点皮，但还能笑。"
-        } else if amount < Decimal(20) {
+        } else if amount < Decimal(50) {
             hp = 80
             title = "钱包掉皮"
             message = "钱包掉了点皮，但还站着。"
-        } else if amount < Decimal(50) {
+        } else if amount < Decimal(100) {
             hp = 70
             title = "钱包轻伤"
             message = "今天还行，钱包只是掉了点皮。"
-        } else if amount < Decimal(100) {
+        } else if amount < Decimal(200) {
             hp = 50
             title = "钱包中伤"
             message = "钱包正在深呼吸。"
-        } else if amount < Decimal(200) {
+        } else if amount < Decimal(500) {
             hp = 30
             title = "钱包大出血"
             message = "钱包血条报警，但不怪你。"
