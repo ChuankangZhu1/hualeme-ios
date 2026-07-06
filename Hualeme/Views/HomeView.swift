@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject private var store: ExpenseStore
     @State private var isShowingCustomAmount = false
-    @State private var lastRecordedAmount: Decimal?
+    @State private var lastRecordedEntryID: UUID?
 
     private let quickAmounts: [Decimal] = [
         Decimal(0),
@@ -18,6 +18,16 @@ struct HomeView: View {
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
+
+    private var lastRecordedEntry: ExpenseEntry? {
+        guard let lastRecordedEntryID else {
+            return nil
+        }
+
+        return store.entries.first { entry in
+            entry.id == lastRecordedEntryID
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -117,9 +127,9 @@ struct HomeView: View {
 
     @ViewBuilder
     private var feedbackSection: some View {
-        if let lastRecordedAmount {
+        if let lastRecordedEntry {
             WalletFeedbackCard(
-                recordedAmount: lastRecordedAmount,
+                recordedAmount: lastRecordedEntry.amount,
                 todayTotal: store.todayTotal,
                 walletStatus: store.walletStatus
             )
@@ -200,7 +210,7 @@ struct HomeView: View {
 
     private func record(amount: Decimal) {
         if let entry = store.add(amount: amount) {
-            lastRecordedAmount = entry.amount
+            lastRecordedEntryID = entry.id
         }
     }
 }
